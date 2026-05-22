@@ -131,4 +131,4 @@ talent-screen/
 
 ---
 
-Developed with ❤️ by **Antigravity AI** for modern Recruitment Teams.
+*Enterprise Recruitment System - Production Version*

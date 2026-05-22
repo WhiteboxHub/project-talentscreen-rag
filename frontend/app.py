@@ -192,4 +192,4 @@ with tab_analytics:
     st.bar_chart(chart_data, x="Skill", y="Count")
 
 st.divider()
-st.caption("© 2024 Talent Screen Enterprise | Built with Antigravity AI Engine")
+st.caption("© 2024 Talent Screen Enterprise")
