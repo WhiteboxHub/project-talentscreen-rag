@@ -131,4 +131,4 @@ talent-screen/
 
 ---
 
-*Enterprise Recruitment System - Production Version*
+---
