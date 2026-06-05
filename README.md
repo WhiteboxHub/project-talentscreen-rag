@@ -171,4 +171,4 @@ docker-compose down -v
 
 ---
 
-*This repository ion TalentScreen RAG *
+*This repository for TalentScreen RAG *
