@@ -1,24 +1,32 @@
-version: '3.8'
-
 services:
-  # --- CORE TALENT SCREEN SERVICES ---
+  # ── CORE TALENT SCREEN SERVICES ────────────────────────────────────────────
   backend:
     build: backend
     ports:
       - "8000:8000"
     env_file: .env
+    environment:
+      # Override localhost URLs with Docker service names
+      DATABASE_URL: postgresql://user:pass@postgres:5432/talentscreen
+      REDIS_URL: redis://redis:6379/0
+      MILVUS_HOST: milvus
+      MILVUS_PORT: 19530
     volumes:
       - ./backend:/app
       - ./data:/app/data
+      - hf_cache:/root/.cache/huggingface
     depends_on:
-      - milvus
-      - redis
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      milvus:
+        condition: service_started
 
   frontend:
-    build: frontend
+    build: frontend-react
     ports:
-      - "8501:8501"
+      - "3000:80"
     depends_on:
       - backend
 
@@ -31,6 +39,11 @@ services:
     command: etcd -advertise-client-urls http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
     volumes:
       - ./volumes/etcd:/etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
 
   minio:
     container_name: milvus-minio
@@ -44,6 +57,11 @@ services:
     command: minio server /data --console-address ":9001"
     volumes:
       - ./volumes/minio:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
 
   milvus:
     container_name: milvus-standalone
@@ -58,19 +76,40 @@ services:
       - "19530:19530"
       - "9091:9091"
     depends_on:
-      - "etcd"
-      - "minio"
+      etcd:
+        condition: service_started
+      minio:
+        condition: service_started
 
   redis:
-    image: redis:7
+    image: redis:7-alpine
     ports:
       - "6379:6379"
+    volumes:
+      - ./volumes/redis:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: talentscreen
     ports:
       - "5432:5432"
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d talentscreen"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  hf_cache:
+    driver: local

@@ -1,5 +1,4 @@
 import re
-from typing import str
 
 class PIIProtector:
     @staticmethod

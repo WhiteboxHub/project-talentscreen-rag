@@ -1,0 +1,51 @@
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+ENV/
+env/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Environment configuration
+.env
+.env.local
+.env.*.local
+
+# Database storage and volumes
+volumes/
+data/
+backend/logs/
+*.db
+*.sqlite3
+
+# Candidate resumes and temporary document artifacts (we do not commit raw data/PDFs to git)
+*.pdf
+!sample_resumes/*.pdf
+*.docx
+*.doc
+/pdf_extracted.txt
+/rag_study_guide.txt
+
+# Node / Frontend artifacts
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*

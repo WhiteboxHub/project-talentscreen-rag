@@ -1,134 +1,174 @@
-# 🎯 Talent Screen — Enterprise AI Recruitment Assistant
+# TalentScreen — Production RAG Recruitment Assistant
 
-[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi)](https://fastapi.tiangolo.com/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit)](https://streamlit.io/)
-[![Milvus](https://img.shields.io/badge/Milvus-19530?style=flat&logo=milvus)](https://milvus.io/)
-[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker)](https://www.docker.com/)
+<div align="center">
 
-**Talent Screen** is a production-grade Recruitment Assistant powered by Retrieval-Augmented Generation (RAG). It transforms traditional ATS keyword-based search into a deep semantic talent discovery engine, helping recruiters find the right talent 80% faster.
+[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![Milvus](https://img.shields.io/badge/Milvus-00A1EA?style=for-the-badge&logo=milvus&logoColor=white)](https://milvus.io/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Python](https://img.shields.io/badge/Python_3.10-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://python.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-DD0031?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
 
----
+**Enterprise-grade Recruitment Knowledge Assistant powered by Retrieval-Augmented Generation (RAG)**
 
-## 🚀 Key Features
+*Based on the Whitebox Learning TalentScreen RAG Study Guide*
 
-### 🔍 Intelligent Retrieval
-- **Hybrid Search**: Combines **BM25 Keyword Matching** with **Dense Vector Search** using Reciprocal Rank Fusion (RRF).
-- **AI Query Expansion**: Automatically expands recruiter queries into full technical tech stacks to find "hidden" candidates.
-- **Semantic Understanding**: Finds "ML Engineers" even if the resume only says "Deep Learning Developer."
-
-### 🤖 AI Recruiter Assistant
-- **Context-Grounded Chat**: Ask questions like *"Who has the most experience with AWS Bedrock?"* or *"Compare candidate A and B for a Lead React role."*
-- **Streaming Responses**: Real-time interactive feedback for a fluid recruiter experience.
-- **PII Protection**: Automatically masks sensitive candidate data (emails, phones) in AI responses.
-
-### 📊 Enterprise Backend
-- **Asynchronous Ingestion**: Multi-threaded processing of PDF/Docx resumes using background workers.
-- **Metadata Extraction**: LLM-powered extraction of Skills, Years of Experience, Education, and Domain.
-- **Observability**: Detailed logging and tracing using **Loguru** and **Langfuse** integration.
+</div>
 
 ---
 
-## 🏗 System Architecture
+## Overview
 
-```mermaid
-graph TD
-    A[Recruiter] --> B[Streamlit Dashboard]
-    B --> C[FastAPI Backend]
-    C --> D{Ingestion Pipe}
-    D --> E[OCR & Parsing]
-    D --> F[AI Metadata Extraction]
-    D --> G[Vector Indexing]
-    G --> H[(Milvus/ChromaDB)]
-    C --> I{Retrieval Pipe}
-    I --> J[Query Expansion]
-    I --> K[Hybrid Search RRF]
-    K --> H
-    C --> L{Generation Pipe}
-    L --> M[Context Injection]
-    M --> N[LLM - GPT-4/Claude]
-    N --> B
-```
+**TalentScreen** is an AI-powered recruitment assistant that replaces traditional keyword-based ATS search with deep semantic talent discovery. Recruiters interact in natural language to find, evaluate, and compare candidates across resumes, job descriptions, interview guides, hiring policies, and SOPs — all in one unified platform.
+
+The system is built on a **production RAG architecture** combining:
+- **Hybrid Retrieval** (BM25 + Dense Vector Search via Milvus) with Reciprocal Rank Fusion (RRF)
+- **BGE Cross-Encoder Reranking** for precision-ranked results
+- **Provider-Agnostic LLM Generation** (Claude via Bedrock/Anthropic, OpenAI, GPT4Free)
+- **Redis Caching**, **PostgreSQL Audit Logs**, and **Langfuse Observability**
 
 ---
 
-## 🛠 Tech Stack
-
-| Layer | Technology |
-| :--- | :--- |
-| **Backend** | Python 3.10, FastAPI, Uvicorn |
-| **Frontend** | Streamlit (Glassmorphism Theme) |
-| **Orchestration** | LangChain, LangGraph |
-| **Vector DB** | Milvus (Production), ChromaDB (POC) |
-| **Cache & Audit** | Redis, PostgreSQL |
-| **Embeddings** | Sentence Transformers (all-MiniLM-L6-v2) |
-| **Models** | OpenAI GPT-4-turbo, Claude 3 (via Bedrock) |
-
----
-
-## 🚦 Getting Started
+## Quick Start (Setup & Run)
 
 ### Prerequisites
-- Docker & Docker Compose
-- OpenAI API Key
+- **Docker Desktop** installed and running
+- At least **6 GB RAM** allocated to Docker (Milvus requires sufficient memory)
 
-### 🐳 Quick Start (Docker)
-The easiest way to start the entire enterprise stack:
+### 1. Configure Environment
+Clone the repository, create your `.env` file from the template, and configure your keys:
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd talent-screen
-   ```
+```bash
+git clone <repo-url>
+cd talent-screen
+cp .env.example .env
+```
 
-2. **Configure Environment**:
-   Create a `.env` file from the template:
-   ```env
-   OPENAI_API_KEY=your_key_here
-   MILVUS_HOST=milvus
-   REDIS_URL=redis://redis:6379/0
-   ```
+Open `.env` and set your preferred LLM provider:
+```env
+# Primary Production Target (AWS Bedrock Claude 3.7 Sonnet)
+LLM_PROVIDER=bedrock
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+BEDROCK_MODEL_ID=anthropic.claude-3-7-sonnet-20250219-v1:0
 
-3. **Launch Stack**:
-   ```bash
-   docker-compose up --build
-   ```
-   *The backend will be live at `localhost:8000` and the UI at `localhost:8501`.*
+# Or Developer Alternative (Anthropic Direct API)
+# LLM_PROVIDER=anthropic
+# ANTHROPIC_API_KEY=sk-ant-your_api_key
+
+# Leave provider keys empty to use GPT4Free (free, no API key required)
+```
+
+### 2. Start all Containers
+Launch the backend, React frontend, database, Redis cache, and Milvus vector search engine:
+
+```bash
+docker-compose up -d --build
+```
+
+Verify that all services started cleanly:
+```bash
+docker-compose ps
+```
+
+| Service | Access URL |
+|---------|------------|
+| **Recruiter App UI** | [http://localhost:3000](http://localhost:3000) |
+| **Backend REST API** | [http://localhost:8000](http://localhost:8000) |
+| **Interactive API Docs** | [http://localhost:8000/docs](http://localhost:8000/docs) |
 
 ---
 
-## 📁 Project Structure
+## How to Test & Ingest Resumes
 
-```text
-talent-screen/
-├── backend/
-│   ├── app/
-│   │   ├── api/          # API Route handlers
-│   │   ├── core/         # Config, Logging, Security, Guardrails
-│   │   ├── db/           # Milvus & ChromaDB implementations
-│   │   ├── services/     # RAG Pipelines (Retrieval, LLM, Worker)
-│   │   └── main.py       # FastAPI Entry point
-│   └── ingestion/        # Resume Parsers & Chunkers
-├── frontend/
-│   └── app.py            # Streamlit Premium Interface
-├── scripts/              # Diagnostic & RAG Testing tools
-└── docker-compose.yml    # Full-stack orchestration
+The repository includes a dedicated `sample_resumes/` folder containing resumes that can be used to test the ingestion pipeline:
+- `sample_resumes/SriRoshini_Resume.pdf`
+- `sample_resumes/Nadipally_Sriroshini_Resume.pdf`
+
+Follow the curl command examples below to test every component of the RAG pipeline.
+
+### Step 1: Check System Health
+Ensure the backend and database components are fully ready:
+```bash
+curl -i http://localhost:8000/health
+```
+*Expected output: `{"status":"healthy","service":"talent-screen","version":"2.0.0"}`*
+
+### Step 2: Ingest Resumes (Document Processing)
+Upload the provided sample resumes to the backend. The files are processed asynchronously in the background (parsed using IBM Docling, split semantically, embedded, and indexed in Milvus):
+
+```bash
+# Upload SriRoshini's Resume
+curl -i -X POST -F "file=@sample_resumes/SriRoshini_Resume.pdf" http://localhost:8000/upload
+
+# Upload Nadipally's Resume
+curl -i -X POST -F "file=@sample_resumes/Nadipally_Sriroshini_Resume.pdf" http://localhost:8000/upload
+```
+
+Check the status of the background indexing tasks:
+```bash
+curl -s http://localhost:8000/documents
+```
+*Wait a few seconds until the status changes from `"processing"` to `"completed"`.*
+
+### Step 3: Run Candidate Search (Hybrid RAG Search)
+Perform a semantic search query. The backend expands your query with AI and ranks candidates using RRF and the BGE Cross-Encoder reranker:
+
+```bash
+curl -i "http://localhost:8000/search?query=Python+developer+with+FastAPI+and+AWS+experience&top_k=2"
+```
+
+### Step 4: Test Recruiter Streaming Assistant (Grounded Chat)
+Chat with the recruiter assistant about the uploaded resumes. Responses are grounded in the context of the resumes and automatically redact PII (emails/phone numbers):
+
+```bash
+curl -i -X POST -H "Content-Type: application/json" \
+  -d '{"query":"What are the primary programming languages and skills for SriRoshini?"}' \
+  http://localhost:8000/chat
+```
+
+### Step 5: Check Dashboard Analytics
+View aggregate metrics about uploaded documents, top skills parsed, and query activity:
+```bash
+curl -i http://localhost:8000/analytics
 ```
 
 ---
 
-## 🔒 Security & Privacy
-- **JWT Authentication**: Secure API endpoints for enterprise use.
-- **Content Validation**: Prevents prompt injection and malicious queries.
-- **GDPR Ready**: Optional PII masking ensures candidate privacy during the screening phase.
+## Technical Architecture (RAG Study Guide Alignment)
+
+| Part | Component | Technical Implementation Details |
+|------|-----------|----------------------------------|
+| **Part 4** | Document Ingestion | Uses **IBM Docling** for high-accuracy PDF parsing (`app/ingestion/parser.py`) and semantic chunking with overlap (`app/ingestion/chunker.py`). |
+| **Part 5** | Embedding & Indexing | Maps chunks to vectors using `all-MiniLM-L6-v2` (`app/services/embedding_service.py`) and stores them in **Milvus** with an HNSW index (`app/db/vector_db.py`). |
+| **Part 6** | Query Processing | LLM extracts search intent, cleans queries, and expands tech terms (`app/services/llm_service.py`). |
+| **Part 7** | Hybrid Retrieval | Combines **BM25 keyword search** and **Milvus vector search** using Reciprocal Rank Fusion (RRF) (`app/services/retrieval_service.py`). |
+| **Part 8** | Reranking | Reranks fused search results with `BAAI/bge-reranker-base` to optimize precision (`app/services/retrieval_service.py`). |
+| **Part 9** | AI Recruiter Assistant | Builds grounded contexts for Claude 3.7 Sonnet, instructing the LLM to restrict answers to the context and avoid hallucinations (`app/services/llm_service.py`). |
+| **Part 10** | Caching & Data Management | Implements **Redis** caching for query responses (`app/services/cache_service.py`) and **PostgreSQL** for storing chat histories and audit records (`app/models/database.py`). |
+| **Part 12** | Security | Automatic regex-based email/phone redaction and guardrails against prompt injection (`app/core/guardrails.py`). |
+| **Part 13** | Observability | Traces generation, search queries, and latencies via **Langfuse** (`app/services/observability.py`). |
+| **Part 14** | Deployment | Multi-stage production `Dockerfile` configurations for backend and frontend packages. |
 
 ---
 
-## 📈 Roadmap
-- [ ] Multi-lingual resume support
-- [ ] Advanced candidate ranking with custom weights
-- [ ] Integration with LinkedIn API / Job Boards
-- [ ] Video interview transcription & analysis
+## Useful Development Commands
+
+```bash
+# View live backend logs
+docker-compose logs -f backend
+
+# Restart the backend service to apply code updates
+docker-compose restart backend
+
+# View logs for the background ingestion worker
+docker-compose logs backend | grep -i worker
+
+# Shut down all services and clean database volumes
+docker-compose down -v
+```
 
 ---
 
----
+*This repository ion TalentScreen RAG *
